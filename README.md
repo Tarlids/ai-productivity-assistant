@@ -1,14 +1,33 @@
-# Welcome to your Lovable project
+# Smart Workflow Hub
+
+Project Overview
+You are required to design and build ONE AI-powered productivity application that helps automate workplace tasks using AI tools such as ChatGPT and Lovable AI.
+
+ 
+
+The goal is to demonstrate:
+
+Practical AI implementation
+
+Strong prompt engineering
+
+Real-world problem solving
+
+Responsible AI usage
+
+Modern UI/UX design
 
 This project was built with [Lovable](https://lovable.dev).
 
+**Live app**: https://office-automata-ai.lovable.app
+
 ## Build with Lovable
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/b3c8e9e5-25dc-488e-81a6-bf3768894b83).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -20,10 +39,3 @@ cd <repository-name>
 npm i
 npm run dev
 ```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
