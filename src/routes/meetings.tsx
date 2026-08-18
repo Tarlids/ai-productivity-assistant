@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { analyzeMeeting, type MeetingResult } from "@/lib/meetings.functions";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/meetings")({
   head: () => ({
     meta: [
       { title: "Standup — Meeting notes into action items" },
