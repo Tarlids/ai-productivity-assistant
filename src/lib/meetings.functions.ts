@@ -36,32 +36,65 @@ Rules:
 - priority must be exactly one of: High, Medium, Low.
 - Keep summary under 120 words, each decision and action under 25 words.
 - openQuestions lists ambiguities a human must confirm — this is how you avoid guessing.
-- followUpEmail is a short recap email (under 180 words) in the requested tone, plain text, no placeholders other than [Name] if truly needed.`;
+- followUpEmail is a short recap email (under 180 words) in the requested tone, plain text, no placeholders other than [Name] if truly needed.
+
+Respond with ONLY a JSON object (no markdown fences, no commentary) in exactly this shape:
+{
+  "title": string,
+  "summary": string,
+  "decisions": string[],
+  "risks": string[],
+  "actionItems": [{ "task": string, "owner": string, "due": string, "priority": string }],
+  "followUpEmail": string,
+  "openQuestions": string[]
+}`;
+
+function extractJson(text: string): unknown {
+  const cleaned = text.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+  if (start === -1 || end === -1) throw new Error("No JSON in model output");
+  return JSON.parse(cleaned.slice(start, end + 1));
+}
 
 export const analyzeMeeting = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => Input.parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data }): Promise<MeetingResult> => {
     const key = process.env["LOVABLE_API_KEY"];
     if (!key) throw new Error("AI is not configured for this app.");
 
     const { createLovableAiGatewayProvider } = await import("./ai-gateway.server");
     const gateway = createLovableAiGatewayProvider(key);
 
+    let text: string;
     try {
       const result = streamText({
         model: gateway("google/gemini-3.6-flash"),
         system: SYSTEM,
-        output: Output.object({ schema: ResultSchema }),
         prompt: `Meeting date: ${data.meetingDate}\nFollow-up email tone: ${data.tone}\n\nRAW NOTES:\n"""\n${data.notes}\n"""`,
       });
-      return (await result.output) as MeetingResult;
+      text = await result.text;
     } catch (error) {
-      if (NoObjectGeneratedError.isInstance(error)) {
-        throw new Error("The AI response could not be parsed. Try again with slightly shorter notes.");
-      }
       const message = error instanceof Error ? error.message : "Unknown error";
-      if (message.includes("402")) throw new Error("AI credits are exhausted. Add credits to continue.");
-      if (message.includes("429")) throw new Error("Rate limited by the AI service. Wait a moment and retry.");
-      throw new Error(message);
+      if (message.includes("402"))
+        throw new Error("AI credits are exhausted. Add credits to continue.");
+      if (message.includes("429"))
+        throw new Error("Rate limited by the AI service. Wait a moment and retry.");
+      throw new Error(`AI request failed: ${message}`);
     }
+
+    const parsed = ResultSchema.safeParse(extractJsonSafe(text));
+    if (!parsed.success) {
+      throw new Error("The AI response could not be parsed. Try again, or shorten the notes.");
+    }
+    return parsed.data;
   });
+
+function extractJsonSafe(text: string): unknown {
+  try {
+    return extractJson(text);
+  } catch {
+    return null;
+  }
+}
+
