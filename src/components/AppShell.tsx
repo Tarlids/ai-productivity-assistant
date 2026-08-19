@@ -122,7 +122,7 @@ export function RunButton({
   );
 }
 
-export function ErrorNote({ message }: { message?: string }) {
+export function ErrorNote({ message }: { message?: string | undefined }) {
   if (!message) return null;
   return (
     <p className="mt-4 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
