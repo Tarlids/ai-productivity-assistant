@@ -2,18 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
+import { AppShell } from "@/components/AppShell";
 import { analyzeMeeting, type MeetingResult } from "@/lib/meetings.functions";
 
 export const Route = createFileRoute("/meetings")({
   head: () => ({
     meta: [
-      { title: "Standup — Meeting notes into action items" },
+      { title: "Meeting Notes Summarizer — Standup" },
       {
         name: "description",
         content:
           "Paste raw meeting notes and get a clean summary, decisions, owners, due dates and a ready-to-send recap email.",
       },
-      { property: "og:title", content: "Standup — Meeting notes into action items" },
+      { property: "og:title", content: "Meeting Notes Summarizer — Standup" },
       {
         property: "og:description",
         content:
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/meetings")({
       },
     ],
   }),
-  component: Index,
+  component: MeetingsPage,
 });
 
 const SAMPLE = `Weekly ops sync — Thabo, Naledi, Sam, Priya (Sam joined late)
@@ -41,7 +42,7 @@ function priorityClass(p: string) {
   return "bg-accent/15 text-accent border-accent/30";
 }
 
-function Index() {
+function MeetingsPage() {
   const [notes, setNotes] = useState("");
   const [tone, setTone] = useState(TONES[0]);
   const [meetingDate, setMeetingDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -56,24 +57,11 @@ function Index() {
   const wordCount = useMemo(() => notes.trim().split(/\s+/).filter(Boolean).length, [notes]);
 
   return (
-    <main className="mx-auto min-h-screen max-w-6xl px-5 py-10 md:px-8">
-      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
-        <div>
-          <p className="label-mono">AI workplace assistant</p>
-          <h1 className="mt-2 font-display text-4xl font-bold md:text-5xl">
-            Standup<span className="text-primary">.</span>
-          </h1>
-          <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-            Paste raw meeting notes. Get a summary, the decisions taken, action items with owners
-            and dates, plus a recap email you can send.
-          </p>
-        </div>
-        <div className="label-mono rounded-full border border-border px-3 py-1.5">
-          Powered by Lovable AI
-        </div>
-      </header>
-
-      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+    <AppShell
+      title="Meeting Notes Summarizer"
+      subtitle="Paste raw meeting notes. Get a summary, the decisions taken, action items with owners and dates, plus a recap email you can send."
+    >
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         {/* Input */}
         <section className="panel h-fit p-5">
           <div className="flex items-center justify-between">
@@ -269,6 +257,6 @@ function Index() {
           )}
         </section>
       </div>
-    </main>
+    </AppShell>
   );
 }
